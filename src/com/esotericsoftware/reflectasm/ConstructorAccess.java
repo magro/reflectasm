@@ -113,17 +113,22 @@ public abstract class ConstructorAccess<T> {
 					}
 				}
 			}
-			if(cacheMap.size() > cacheSize) {
-				Iterator it = cacheMap.entrySet().iterator();
-				while(it.hasNext()) {
-					it.remove();
-					if(cacheMap.size() < cacheSize/2) {
-						break;
+			if (cacheMap.size() > cacheSize) {
+				synchronized (cacheMap) {
+					Iterator it = cacheMap.entrySet().iterator();
+					while (it.hasNext()) {
+						it.remove();
+						if (cacheMap.size() < cacheSize / 2) {
+							break;
+						}
 					}
 				}
 			}
-			cacheMap.put(accessClassName, new WeakReference<Class>(accessClass));
+			synchronized (cacheMap) {
+				cacheMap.put(accessClassName, new WeakReference<Class>(accessClass));
+			}
 		}
+
 		ConstructorAccess<T> access;
 		try {
 			access = (ConstructorAccess<T>)accessClass.newInstance();
